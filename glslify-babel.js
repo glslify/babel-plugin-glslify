@@ -1,4 +1,5 @@
-// var glslifySync = require('glslify-sync')
+var path = require('path')
+var glslifyHack = require('./lib/glslify-sync-hack')
 
 module.exports = function (babel) {
   function resolveImport (identifier, declaration) {
@@ -96,17 +97,10 @@ module.exports = function (babel) {
         if (typeof optionInput !== 'object' || !optionInput) {
           throw new Error('glslify-babel: invalid option input')
         }
+        console.log(path)
 
-        var result = 'GLSLIFY STRING'
-
-        if (optionInput.inline) {
-          // evaluate inline string
-          result = optionInput.inline
-        } else {
-          // evaluate output
-        }
-
-        path.replaceWith(babel.types.stringLiteral(parsed))
+        var result = glslifyHack('', stringInput, optionInput)
+        path.replaceWith(babel.types.stringLiteral(result))
       }
     }
   }
