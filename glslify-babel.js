@@ -1,4 +1,4 @@
-var path = require('path')
+var dirname = require('path').dirname
 var glslifyHack = require('./lib/glslify-sync-hack')
 
 module.exports = function (babel) {
@@ -54,22 +54,57 @@ module.exports = function (babel) {
     }
   }
 
-  function evalConstant (path, expression) {
+  function evalConstant (env, path, expression) {
     if (!expression) {
       throw new Error('glslify-binding: invalid expression')
     }
     switch (expression.type) {
       case 'StringLiteral':
+      case 'BooleanLiteral':
+      case 'NumericLiteral':
+      case 'NullLiteral':
         return expression.value
+      case 'TemplateLiteral':
+        var quasis = expression.quasis
+        return expression.expressions.reduce(function (prev, expr, i) {
+          prev.push(
+            evalConstant(env, path, expr),
+            quasis[i].value.cooked)
+          return prev
+        }, [quasis[0].value.cooked]).join('')
       case 'Identifier':
         // TODO handle __dirname and other constants here
+        var binding = path.scope.getBinding(expression.name)
+        if (!binding) {
+          if (expression.name === '__dirname') {
+            return env.cwd
+          }
+        }
         throw new Error('glslify-babel: cannot resolve glslify(), unknown id')
       case 'BinaryExpression':
         if (expression.operator === '+') {
-          return evalConstant(path, expression.left) +
-                 evalConstant(path, expression.right)
+          return evalConstant(env, path, expression.left) +
+                 evalConstant(env, path, expression.right)
         }
         throw new Error('glslify-babel: unsupported binary expression')
+      case 'ObjectExpression':
+        return expression.properties.reduce(function (result, property) {
+          if (property.type !== 'ObjectProperty') {
+            throw new Error('glslify-babel: expected object property')
+          }
+
+          var value = evalConstant(env, path, property.value)
+          var key = property.key
+          if (key.type === 'Identifier') {
+            result[key.name] = value
+          } else if (key.type === 'StringLiteral') {
+            result[key.value] = value
+          } else {
+            throw new Error('glslify-babel: invalid property type')
+          }
+
+          return result
+        }, {})
       default:
         throw new Error('glslify-babel: cannot resolve glslify() call')
     }
@@ -77,7 +112,30 @@ module.exports = function (babel) {
 
   return {
     visitor: {
-      CallExpression: function (path) {
+      TaggedTemplateExpression: function (path, state) {
+        var node = path.node
+        var tag = node.tag
+        if (tag.type !== 'Identifier' ||
+            resolveModule(path, tag.name) !== 'glslify') {
+          return
+        }
+
+        var filename = state.file.log.filename
+        var cwd = dirname(filename)
+        var env = {
+          cwd: cwd
+        }
+
+        var stringInput = evalConstant(env, path, node.quasi)
+        if (typeof stringInput !== 'string') {
+          throw new Error('glslify-babel: invalid string template')
+        }
+
+        var result = glslifyHack(cwd, stringInput, { inline: true })
+        path.replaceWith(babel.types.stringLiteral(result))
+      },
+
+      CallExpression: function (path, state) {
         var node = path.node
         var callee = node.callee
         if (callee.type !== 'Identifier' ||
@@ -85,21 +143,27 @@ module.exports = function (babel) {
             node.arguments.length < 1) {
           return
         }
-        var stringInput = evalConstant(path, node.arguments[0])
+
+        var filename = state.file.log.filename
+        var cwd = dirname(filename)
+        var env = {
+          cwd: cwd
+        }
+
+        var stringInput = evalConstant(env, path, node.arguments[0])
         if (typeof stringInput !== 'string') {
           throw new Error('glslify-babel: first argument must be a string')
         }
 
         var optionInput = {}
         if (node.arguments.length >= 2) {
-          optionInput = evalConstant(path, node.arguments[1])
+          optionInput = evalConstant(env, path, node.arguments[1])
         }
         if (typeof optionInput !== 'object' || !optionInput) {
           throw new Error('glslify-babel: invalid option input')
         }
-        console.log(path)
 
-        var result = glslifyHack('', stringInput, optionInput)
+        var result = glslifyHack(cwd, stringInput, optionInput)
         path.replaceWith(babel.types.stringLiteral(result))
       }
     }

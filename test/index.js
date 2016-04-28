@@ -19,13 +19,14 @@ tape('glslify-babel', function (t) {
     })
 
     // FIXME need to diff outputs here
-    console.log(fixture, ':', transformed.code)
+    console.log(fixture, '\n-----------------\n\n', transformed.code)
   }
 
+  runTestCase('inline.js')
   runTestCase('require.js')
   runTestCase('es6import.js')
   runTestCase('dirname.js')
-  runTestCase('inline.js')
+  runTestCase('tagged.js')
 
   t.end()
 })
