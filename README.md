@@ -28,18 +28,14 @@ npm i -S glslify glslify-babel
 Then you need to configure babel to run the transform.  For example, if you were using browserify with babelify to run babel you would add the following to your package.json to run glslify:
 
 ```javascript
-// ...
-{
-  "browserify": {
-    "transform": [
-      [
-        "babelify",
-        {
-          "transform": "glslify"
-        }
-      ]
-    ]
-  }
+// ... in your package.json
+"browserify": {
+  "transform": [[
+    "babelify", {
+      "presets": ["es2015"],
+      "plugins": ["glslify-babel"]
+    }
+  ]]
 }
 ```
 
