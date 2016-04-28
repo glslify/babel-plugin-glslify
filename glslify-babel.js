@@ -81,10 +81,40 @@ module.exports = function (babel) {
           }
         }
         throw new Error('glslify-babel: cannot resolve glslify(), unknown id')
+      case 'UnaryExpression':
+        var value = evalConstant(env, path, expression.argument)
+        switch (expression.operator) {
+          case '+': return +value
+          case '-': return -value
+          case '!': return !value
+          case '~': return ~value
+          case 'typeof': return typeof value
+          case 'void': return void value
+        }
+        throw new Error('glslify-babel: unsupported unary operator')
       case 'BinaryExpression':
-        if (expression.operator === '+') {
-          return evalConstant(env, path, expression.left) +
-                 evalConstant(env, path, expression.right)
+        var left = evalConstant(env, path, expression.left)
+        var right = evalConstant(env, path, expression.right)
+        switch (expression.operator) {
+          case '+': return left + right
+          case '-': return left - right
+          case '*': return left * right
+          case '&': return left & right
+          case '/': return left / right
+          case '%': return left % right
+          case '|': return left | right
+          case '^': return left ^ right
+          case '||': return left || right
+          case '&&': return left && right
+          case '<<': return left << right
+          case '>>': return left >> right
+          case '>>>': return left >>> right
+          case '===': return left === right
+          case '!==': return left !== right
+          case '<': return left < right
+          case '>': return right < left
+          case '<=': return left <= right
+          case '>=': return left >= right
         }
         throw new Error('glslify-babel: unsupported binary expression')
       case 'ObjectExpression':
@@ -102,9 +132,15 @@ module.exports = function (babel) {
           } else {
             throw new Error('glslify-babel: invalid property type')
           }
-
           return result
         }, {})
+      case 'ArrayExpression':
+        return expression.elements.map(function (prop) {
+          if (!prop) {
+            return void 0
+          }
+          return evalConstant(env, path, prop)
+        })
       default:
         throw new Error('glslify-babel: cannot resolve glslify() call')
     }

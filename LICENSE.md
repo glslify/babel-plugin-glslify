@@ -1,7 +1,6 @@
 The MIT License (MIT)
 =====================
 
-* Copyright &copy; 2015 [Chris Dickinson](http://github.com/chrisdickinson)
 * Copyright &copy; 2015 [stackgl](http://github.com/stackgl/) contributors
 
 *stackgl contributors listed at <https://github.com/stackgl/contributing/blob/master/CONTRIBUTING.md#contributors>*
