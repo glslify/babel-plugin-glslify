@@ -1,5 +1,5 @@
-glslify-babel
-=============
+babel-plugin-glslify
+====================
 A [babel](https://babeljs.io/) transform for [glslify](https://github.com/stackgl/glslify).
 
 # Example
@@ -22,7 +22,7 @@ void main () {
 To install this module, you need to install glslify as well:
 
 ```
-npm i -S glslify glslify-babel
+npm i -S glslify babel-plugin-glslify
 ```
 
 Then you need to configure babel to run the transform.  For example, if you were using browserify with babelify to run babel you would add the following to your package.json to run glslify:
@@ -33,7 +33,7 @@ Then you need to configure babel to run the transform.  For example, if you were
   "transform": [[
     "babelify", {
       "presets": ["es2015"],
-      "plugins": ["glslify-babel"]
+      "plugins": ["babel-plugin-glslify"]
     }
   ]]
 }
