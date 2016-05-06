@@ -1,13 +1,13 @@
 {
   "name": "babel-plugin-glslify",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "glslify as a babel transform",
   "main": "glslify-babel.js",
   "directories": {
     "test": "test"
   },
   "engines": {
-     "node": ">=0.12"
+    "node": ">=0.12"
   },
   "dependencies": {
     "bl": "^1.1.2",
