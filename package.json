@@ -6,6 +6,9 @@
   "directories": {
     "test": "test"
   },
+  "engines": {
+     "node": ">=0.12"
+  },
   "dependencies": {
     "bl": "^1.1.2",
     "glslify-bundle": "^5.0.0",
