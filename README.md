@@ -33,7 +33,7 @@ Then you need to configure babel to run the transform.  For example, if you were
   "transform": [[
     "babelify", {
       "presets": ["es2015"],
-      "plugins": ["babel-plugin-glslify"]
+      "plugins": ["glslify"]
     }
   ]]
 }
