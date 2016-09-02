@@ -6,7 +6,7 @@ A [babel](https://babeljs.io/) transform for [glslify](https://github.com/stackg
 This module works the same as the browserify transform in [glslify](https://github.com/stackgl/glslify), except that it is compatible with babel.  It also supports ES6 syntax and some more advanced features like tagged strings.  For example, you can write something like this,
 
 ```javascript
-import glsl from glslify;
+import glsl from "glslify";
 
 const myFragShader = glsl`
 #pragma glslify: noise = require(glsl-noise/simplex/2d)
