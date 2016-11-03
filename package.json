@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-glslify",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "glslify as a babel transform",
   "main": "glslify-babel.js",
   "directories": {
