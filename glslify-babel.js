@@ -1,6 +1,15 @@
 var dirname = require('path').dirname
 var glslifyHack = require('./lib/glslify-sync-hack')
 
+const resolveFilename = (state) => {
+  if (state.file.log) {
+    // babel 6
+    return state.file.log.filename
+  }
+  // babel 7
+  return state.file.opts.filename
+}
+
 module.exports = function (babel) {
   function resolveImport (identifier, declaration) {
     if (declaration.type === 'ImportDeclaration' &&
@@ -156,7 +165,7 @@ module.exports = function (babel) {
           return
         }
 
-        var filename = state.file.log.filename
+        var filename = resolveFilename(state);
         var cwd = dirname(filename)
         var env = {
           cwd: cwd
@@ -180,7 +189,7 @@ module.exports = function (babel) {
           return
         }
 
-        var filename = state.file.log.filename
+        var filename = resolveFilename(state);
         var cwd = dirname(filename)
         var env = {
           cwd: cwd
